@@ -1,0 +1,37 @@
+{
+  "players":[
+    {
+      "id":"gp",
+      "name":"george",
+      "cards":[
+        {
+          "name":"GPcard1",
+          "id":"gpc1",
+          "touchpointValues":[1,0,2,0,4,0,5]
+        },
+        {
+          "name":"GPcard2",
+          "id":"gpc2",
+          "touchpointValues":[1,0,2,0,4,0,5]
+        }
+      ]
+    },
+    {
+      "id":"az",
+      "name":"alex",
+      "cards":[
+        {
+          "id":"azc1",
+          "name":"AZcard1",
+          "touchpointValues":[1,0,2,0,4,0,5]
+        },
+        {
+          "id":"azc2",
+          "name":"AZcard2",
+          "touchpointValues":[1,0,2,0,4,0,5]
+        }
+      ]
+    }
+  ]
+}
+
