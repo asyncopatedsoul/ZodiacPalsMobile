@@ -9,6 +9,19 @@ using CardGridHex;
 
 public class GameStateManager : MonoBehaviour
 {
+	public GameObject prefab;
+	public float gridX = 5f;
+	public float gridY = 5f;
+	public float spacing = 2f;
+
+	void PlaceMarker(float x, float y)
+	{
+
+
+		Vector3 pos = new Vector3(x, 0, y) * spacing;
+		Instantiate(prefab, pos, Quaternion.identity);
+
+	}
 
 	// Use this for initialization
 	void Start()
@@ -17,6 +30,19 @@ public class GameStateManager : MonoBehaviour
 
 
 		Debug.Log("start game");
+
+		GameBoardHex gameboard = new GameBoardHex();
+
+		Debug.Log("tile count: " + gameboard.tiles.Count);
+
+		foreach (var hex in gameboard.tiles)
+		{
+			var x = hex.geometry.midpoint.x;
+			var y = hex.geometry.midpoint.y;
+
+			Debug.Log("tile at " + x.ToString() + "," + y.ToString());
+			PlaceMarker(x, y);
+		}
 
 		//GameBoard gameboard = new GameBoard(3, 3);
 
