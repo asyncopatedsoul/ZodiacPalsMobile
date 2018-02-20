@@ -10,14 +10,17 @@ namespace CardGridHex
 		public List<BoardPositionHex> tiles;
 		public List<InteractionPoint> interactionPoints;
 
+		public List<Point> uniqueMidpoints;
+
 		public IList<Card> cardsPlayed;
 
 		public GameBoardHex()
 		{
 			this.tiles = new List<BoardPositionHex>();
+			this.interactionPoints = new List<InteractionPoint>();
 
 			generatePositions();
-			//calculateInteractionPoints();
+			calculateInteractionPoints();
 		}
 
 		void generatePositions()
@@ -64,21 +67,31 @@ namespace CardGridHex
 						iPoint.tileA = point.lineSegment.shape.tile;
 						this.interactionPoints.Add(iPoint);
 
-						continue;
-					};
-
-					foreach (var existingPoint in allMidpoints)
+					}
+					else
 					{
-						// compare midpoint equality to points in list
-						// if midpoint already in list, link redundant midpoint's gameboardHex to existing midpoint's interactionPoint
-						if (Point.Equals(point, existingPoint))
+						var midpointExists = false;
+
+						foreach (var existingPoint in allMidpoints)
 						{
-							existingPoint.iPoint.tileB = point.lineSegment.shape.tile;
+							// compare midpoint equality to points in list
+							// if midpoint already in list, link redundant midpoint's gameboardHex to existing midpoint's interactionPoint
+							if (Point.Equals(point, existingPoint))
+							{
+								midpointExists = true;
+
+								existingPoint.iPoint.tileB = point.lineSegment.shape.tile;
+
+							}
+						}
+
+						if (midpointExists)
+						{
+
 						}
 						// if midpoint not already in list, add new interaction point and link new midpoint's hex to interactionPoint
 						else
 						{
-
 							allMidpoints.Add(point);
 
 							var iPoint = new InteractionPoint();
@@ -86,10 +99,13 @@ namespace CardGridHex
 							iPoint.tileA = point.lineSegment.shape.tile;
 							this.interactionPoints.Add(iPoint);
 						}
-
 					}
+
+
 				}
 			}
+
+			this.uniqueMidpoints = allMidpoints;
 
 			//foreach (var point in allMidpoints)
 			//{
@@ -203,10 +219,11 @@ namespace CardGridHex
 
 			this.vertices = new List<Point> { vertex1, vertex2, vertex3, vertex4, vertex5, vertex6 };
 			this.edges = new List<LineSegment>();
+			this.edgeMidpoints = new List<Point>();
 
 			calculateEdges();
 
-			Debug.Log("new hexagon " + this.vertices.Count + " " + this.edges.Count);
+			Debug.Log(String.Format("new hexagon {0} {1} {2}", this.vertices.Count, this.edges.Count, this.edgeMidpoints.Count));
 		}
 
 
@@ -215,17 +232,21 @@ namespace CardGridHex
 		{
 			for (var v = 0; v < this.vertices.Count; v++)
 			{
-				if (v == this.vertices.Count-1)
+				if (v == this.vertices.Count - 1)
 				{
 					var segment = new LineSegment(this.vertices[this.vertices.Count - 1], this.vertices[0]);
-					this.edges.Add(segment);
 
+					this.edges.Add(segment);
+					this.edgeMidpoints.Add(segment.midpoint);
 					segment.shape = this;
 				}
 				else
 				{
 					var segment = new LineSegment(this.vertices[v], this.vertices[v + 1]);
+
 					this.edges.Add(segment);
+					this.edgeMidpoints.Add(segment.midpoint);
+					segment.shape = this;
 				}
 			}
 		}

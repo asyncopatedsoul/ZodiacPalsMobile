@@ -9,26 +9,22 @@ using CardGridHex;
 
 public class GameStateManager : MonoBehaviour
 {
-	public GameObject prefab;
+	public GameObject marker1;
+	public GameObject marker2;
+
 	public float gridX = 5f;
 	public float gridY = 5f;
 	public float spacing = 2f;
 
-	void PlaceMarker(float x, float y)
+	void PlaceMarker(float x, float y, GameObject marker)
 	{
-
-
 		Vector3 pos = new Vector3(x, 0, y) * spacing;
-		Instantiate(prefab, pos, Quaternion.identity);
-
+		Instantiate(marker, pos, Quaternion.identity);
 	}
 
 	// Use this for initialization
 	void Start()
 	{
-
-
-
 		Debug.Log("start game");
 
 		GameBoardHex gameboard = new GameBoardHex();
@@ -41,7 +37,16 @@ public class GameStateManager : MonoBehaviour
 			var y = hex.geometry.midpoint.y;
 
 			Debug.Log("tile at " + x.ToString() + "," + y.ToString());
-			PlaceMarker(x, y);
+			PlaceMarker(x, y, marker1);
+		}
+
+		foreach (var midpoint in gameboard.uniqueMidpoints)
+		{
+			var x = midpoint.x;
+			var y = midpoint.y;
+
+			Debug.Log("tile at " + x.ToString() + "," + y.ToString());
+			PlaceMarker(x, y, marker2);
 		}
 
 		//GameBoard gameboard = new GameBoard(3, 3);
