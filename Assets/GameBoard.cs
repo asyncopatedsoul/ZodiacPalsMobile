@@ -29,7 +29,7 @@ namespace CardGridHex
 			// repeat for n layers around the previous layer
 
 			// layer 0
-			var hexOrigin = new Hexagon(0, 0, 1);
+			var hexOrigin = new Hexagon(0, 0, 1, false);
 			this.tiles.Add(new BoardPositionHex(hexOrigin));
 
 			// 3 layers = 1 + 6 + 12 = 19
@@ -184,7 +184,7 @@ namespace CardGridHex
 
 		public float sideLength;
 
-		public Hexagon(float x, float y, float sideLength, float rotation = 0)
+		public Hexagon(float x, float y, float sideLength, bool rotate90degrees)
 		{
 			this.sideLength = sideLength;
 
@@ -198,14 +198,17 @@ namespace CardGridHex
 			Point vertex5;
 			Point vertex6;
 
-			if (Point.AlmostEqual2sComplement(rotation, 90f, 4))
+			//if (Point.AlmostEqual2sComplement(rotation, 90f, 4))
+			if (rotate90degrees)
 			{
-				vertex1 = new Point(x, y + sideLength);
-				vertex2 = new Point(x + (float)Math.Sqrt(3.0) / 2f * sideLength, y + 0.5f * sideLength);
-				vertex3 = new Point(x + (float)Math.Sqrt(3.0) / 2f * sideLength, y - 0.5f * sideLength);
-				vertex4 = new Point(x, y - sideLength);
-				vertex5 = new Point(x - (float)Math.Sqrt(3.0) / 2f * sideLength, y - 0.5f * sideLength);
-				vertex6 = new Point(x - (float)Math.Sqrt(3.0) / 2f * sideLength, y + 0.5f * sideLength);
+				Debug.Log("rotate90 degrees hexagon");
+
+				vertex1 = new Point(x, y + (float)Math.Sqrt(3.0) * sideLength);
+				vertex2 = new Point(x + 1.5f * sideLength, y + (float)Math.Sqrt(3.0) / 2f * sideLength);
+				vertex3 = new Point(x + 1.5f * sideLength, y - (float)Math.Sqrt(3.0) / 2f * sideLength);
+				vertex4 = new Point(x, y - (float)Math.Sqrt(3.0) * sideLength);
+				vertex5 = new Point(x - 1.5f * sideLength, y - (float)Math.Sqrt(3.0) / 2f * sideLength);
+				vertex6 = new Point(x - 1.5f * sideLength, y + (float)Math.Sqrt(3.0) / 2f * sideLength);
 			}
 			else
 			{
@@ -258,12 +261,12 @@ namespace CardGridHex
 			// vertices of virtual hexagon at sideLength * 3 /2 * layerNumber
 			// are midpoints of outer tessellated hexagons
 
-			var virtualHexagon = new Hexagon(coreHexagon.midpoint.x, coreHexagon.midpoint.y, coreHexagon.sideLength * 3f / 2f * (float)layerNumber, 90f);
+			var virtualHexagon = new Hexagon(coreHexagon.midpoint.x, coreHexagon.midpoint.y, coreHexagon.sideLength * (float)layerNumber, true);
 
 			foreach (var vertex in virtualHexagon.vertices)
 			{
-				Debug.Log("tessellated vertex");
-				var hexagon = new Hexagon(vertex.x, vertex.y, coreHexagon.sideLength);
+				Debug.Log("tessellated vertex " + vertex.x + "," + vertex.y);
+				var hexagon = new Hexagon(vertex.x, vertex.y, coreHexagon.sideLength, false);
 				tessellatedHexes.Add(hexagon);
 			}
 
@@ -273,7 +276,7 @@ namespace CardGridHex
 				foreach (var point in edge.divide(layerNumber))
 				{
 					Debug.Log("edge division");
-					var hexagon = new Hexagon(point.x, point.y, coreHexagon.sideLength);
+					var hexagon = new Hexagon(point.x, point.y, coreHexagon.sideLength, false);
 					tessellatedHexes.Add(hexagon);
 				}
 			}
@@ -317,9 +320,34 @@ namespace CardGridHex
 			return intDiff <= (1 << maxDeltaBits);
 		}
 
+		public static bool HasMinimalDifference(double value1, double value2, int units)
+		{
+			long lValue1 = BitConverter.DoubleToInt64Bits(value1);
+			long lValue2 = BitConverter.DoubleToInt64Bits(value2);
+
+			// If the signs are different, return false except for +0 and -0.
+			if ((lValue1 >> 63) != (lValue2 >> 63))
+			{
+				if (value1 == value2)
+					return true;
+
+				return false;
+			}
+
+			long diff = Math.Abs(lValue1 - lValue2);
+
+			if (diff <= (long)units)
+				return true;
+
+			return false;
+		}
+
+		// The example displays the following output:
+		//        01 = 0.99999999999999989: True
+
 		public static bool Equals(Point pointA, Point pointB, int maxDeltaBits = 4)
 		{
-			return (AlmostEqual2sComplement(pointA.x, pointB.x, maxDeltaBits) && AlmostEqual2sComplement(pointA.y, pointB.y, maxDeltaBits));
+			return (HasMinimalDifference(pointA.x, pointB.x, maxDeltaBits) && HasMinimalDifference(pointA.y, pointB.y, maxDeltaBits));
 		}
 	}
 

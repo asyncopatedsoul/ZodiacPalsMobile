@@ -11,14 +11,15 @@ public class GameStateManager : MonoBehaviour
 {
 	public GameObject marker1;
 	public GameObject marker2;
+	public GameObject marker3;
 
 	public float gridX = 5f;
 	public float gridY = 5f;
-	public float spacing = 2f;
+	public float spacing = 1f;
 
 	void PlaceMarker(float x, float y, GameObject marker)
 	{
-		Vector3 pos = new Vector3(x, 0, y) * spacing;
+		Vector3 pos = new Vector3(x, y, 0) * spacing;
 		Instantiate(marker, pos, Quaternion.identity);
 	}
 
@@ -38,14 +39,23 @@ public class GameStateManager : MonoBehaviour
 
 			Debug.Log("tile at " + x.ToString() + "," + y.ToString());
 			PlaceMarker(x, y, marker1);
+
+
+			foreach (var vertex in hex.geometry.vertices)
+			{
+				Debug.Log("vertex at " + vertex.x.ToString() + "," + vertex.y.ToString());
+				PlaceMarker(vertex.x, vertex.y, marker3);
+			}
 		}
+
+
 
 		foreach (var midpoint in gameboard.uniqueMidpoints)
 		{
 			var x = midpoint.x;
 			var y = midpoint.y;
 
-			Debug.Log("tile at " + x.ToString() + "," + y.ToString());
+			Debug.Log("unique midpoint at " + x.ToString() + "," + y.ToString());
 			PlaceMarker(x, y, marker2);
 		}
 
